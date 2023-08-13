@@ -1,9 +1,9 @@
-
-
-
-
-
 import 'package:flutter/material.dart';
+import 'package:showapp/pages/create_account.dart';
+import 'package:showapp/pages/login_page.dart';
+
+import 'package:showapp/routes/routes.dart';
+import 'package:showapp/utils/theme.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,40 +20,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: _title,
+      debugShowCheckedModeBanner: false,
+       theme: MyTheme.lightTheme,
+      onGenerateRoute: Routes.generateRoute,
+      home: LoginPage(),
       
-      home: const HomePage(),
+      
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
-
-
-
-
- @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('ShowApp'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'ShowApp',
-            ),
-          ],
-        ),
-      ),
-    );
-}
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    throw UnimplementedError();
-  }
-}
