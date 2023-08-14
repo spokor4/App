@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Dodano import Firebase Authentication
 
 import '../widgets/login_widgets.dart';
-
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,19 +15,72 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
 // email and password controllers
 
-final TextEditingController emailTextControllerL = TextEditingController();
-final TextEditingController passwordTextControllerL = TextEditingController();
+  final TextEditingController _emailTextControllerL = TextEditingController();
+  final TextEditingController _passwordTextControllerL =
+      TextEditingController();
 
- 
+// login and create account functions
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late bool _isSignIn = true;
+  late bool _isEmailValid = true;
+  late bool _isPasswordValid = true;
 
-  
- 
+// check if email and password are valid
+  bool _validateData() {
+    bool isEmailValid = _emailTextControllerL.text.isNotEmpty;
+    bool isPasswordValid = _passwordTextControllerL.text.isNotEmpty;
+
+    setState(() {
+      _isEmailValid = isEmailValid;
+      _isPasswordValid = isPasswordValid;
+    });
+
+    return isEmailValid && isPasswordValid;
+  }
+
+  // Login Method
+
+  void _signUserIn() async {
+   
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: _emailTextControllerL.text,
+      password: _passwordTextControllerL.text,
+    );
+  }
+
+  void _login() async {
+    if (_validateData()) {
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailTextControllerL.text,
+          password: _emailTextControllerL.text,
+        );
+
+        Navigator.pushReplacementNamed(context, '/navBar');
+      } catch (e) {
+        setState(() {
+          _isEmailValid = false;
+          _isPasswordValid = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void _toggleMode(bool isSignIn) {
+    setState(() {
+      _isSignIn = isSignIn;
+    });
+  }
+
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return Scaffold(
-      
       body: Stack(
         children: [
           Align(
@@ -80,8 +133,9 @@ final TextEditingController passwordTextControllerL = TextEditingController();
                                                 EdgeInsetsDirectional.fromSTEB(
                                                     0, 0, 8, 4),
                                             child: Text(
-                                              'Welcome Back!' ,
-                                              style: GoogleFonts.playfairDisplay(
+                                              'Welcome Back!',
+                                              style:
+                                                  GoogleFonts.playfairDisplay(
                                                 fontSize: 32,
                                                 fontWeight: FontWeight.bold,
                                                 color: Color(0xFF8B97A2),
@@ -95,7 +149,8 @@ final TextEditingController passwordTextControllerL = TextEditingController();
                                                   .fromSTEB(4, 0, 0, 0),
                                               child: Text(
                                                 'Good to see you again',
-                                                style: GoogleFonts.playfairDisplay(
+                                                style:
+                                                    GoogleFonts.playfairDisplay(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w200,
                                                 ),
@@ -108,48 +163,47 @@ final TextEditingController passwordTextControllerL = TextEditingController();
                                   ),
                                 ),
                                 Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      4, 0, 4, 15),
-                                  child: MyTextField(hintText: "Email",obscureText: false,controller:emailTextControllerL ,)
-                                ),
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        4, 0, 4, 15),
+                                    child: MyTextField(
+                                      hintText: "Email",
+                                      obscureText: false,
+                                      controller: _emailTextControllerL,
+                                    )),
                                 Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      4, 0, 4, 20),
-                                  child: MyTextField(hintText: "Password",obscureText: true,controller: passwordTextControllerL ,)
-                                ),
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        4, 0, 4, 20),
+                                    child: MyTextField(
+                                      hintText: "Password",
+                                      obscureText: true,
+                                      controller: _passwordTextControllerL,
+                                    )),
                                 Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       0, 0, 0, 18),
                                   child: Padding(
-                                  padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
-                                  child: ElevatedButton(
-  style: ElevatedButton.styleFrom(
-    primary: Colors.black,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(30.0),
-    ),
-    minimumSize: Size(300, 50),
-  ),
-  onPressed: () async {
-    
-  },
-  child: Text(
-    'Sign in',
-    style: TextStyle(
-      color: Colors.white,
-      fontSize: 16,
-    ),
-  ),
-),
-
+                                    padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.black,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.0),
+                                        ),
+                                        minimumSize: Size(300, 50),
+                                      ),
+                                      onPressed: _signUserIn,
+                                      child: Text(
+                                        'Sign in',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                            
-                                    
-                                  
-                                    
-                                  ),
-                                
-                                 Padding(
+                                ),
+                                Padding(
                                   padding: EdgeInsets.fromLTRB(0, 0, 0, 16),
                                   child: Text(
                                     'Or Continue Using',
@@ -165,24 +219,26 @@ final TextEditingController passwordTextControllerL = TextEditingController();
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                   GoogleLoginButton(
+                                    GoogleLoginButton(
                                       icon: FontAwesomeIcons.google,
                                       iconSize: 24,
-                                      onPressed: () {Navigator.of(context).pushNamed('/createAccount');
-                                       },
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pushNamed('/createAccount');
+                                      },
                                     ),
-
                                     GoogleLoginButton(
                                       icon: FontAwesomeIcons.facebookF,
                                       iconSize: 24,
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pushNamed('/navBar');
+                                      },
                                     ),
-
                                     GoogleLoginButton(
                                       icon: FontAwesomeIcons.idCard,
                                       iconSize: 28,
                                       onPressed: () {},
-                                      
                                     ),
                                   ],
                                 ),
@@ -191,9 +247,7 @@ final TextEditingController passwordTextControllerL = TextEditingController();
                                   child: Padding(
                                     padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
                                     child: InkWell(
-                                      onTap: () async {
-                                        
-                                      },
+                                      onTap: () async {},
                                       child: Text(
                                         'Already have an account?',
                                         style: GoogleFonts.playfairDisplay(
